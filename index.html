@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mi Día Emocional</title>
+  <style>
+    body {
+      background-color: #1a1a1a;
+      color: #f0f0f0;
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1, h2 {
+      text-align: center;
+    }
+    #racha {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 20px;
+    }
+    textarea {
+      width: 100%;
+      height: 150px;
+      background: #2b2b2b;
+      color: white;
+      border: none;
+      padding: 15px;
+      font-size: 16px;
+      resize: none;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: #ff3366;
+      border: none;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .emocion {
+      text-align: center;
+      margin: 20px 0;
+      font-size: 24px;
+    }
+    .simbolo {
+      font-size: 60px;
+      margin-bottom: 10px;
+    }
+    .mensaje-final {
+      margin-top: 30px;
+      font-size: 18px;
+      color: #999;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>¿Cómo fue tu día?</h1>
+  <div id="racha">Racha actual: 0 días seguidos</div>
+
+  <textarea id="inputDia" placeholder="Escribe cómo fue tu día..."></textarea>
+  <button onclick="analizarDia()">Enviar</button>
+
+  <div id="resultados" style="display:none;">
+    <h2>Resultados emocionales:</h2>
+
+    <div class="emocion">
+      <div class="simbolo">😊</div>
+      <p id="txtFelicidad"></p>
+    </div>
+    <div class="emocion">
+      <div class="simbolo">😥</div>
+      <p id="txtDepresion"></p>
+    </div>
+    <div class="emocion">
+      <div class="simbolo">💪</div>
+      <p id="txtVivir"></p>
+    </div>
+    <div class="emocion">
+      <div class="simbolo">💀</div>
+      <p id="txtMorir"></p>
+    </div>
+
+    <div class="mensaje-final" id="mensajeFinal"></div>
+  </div>
+
+  <script>
+    const mensajesOscuros = [
+      "Felicidades, otro día menos que aguantar.",
+      "Vas bien… directo a la tumba.",
+      "La buena noticia: sigues vivo. La mala: sigues vivo.",
+      "Un paso más cerca del descanso eterno.",
+      "¿Otra vez tú? Pensé que ya habías terminado.",
+      "La vida sigue... lamentablemente.",
+      "Sobreviviste al día. Pero no a ti mismo."
+    ];
+
+    function getFechaHoy() {
+      const hoy = new Date();
+      return hoy.toISOString().split('T')[0];
+    }
+
+    function cargarRacha() {
+      const ultimaFecha = localStorage.getItem('ultimaEntrada');
+      const hoy = getFechaHoy();
+      let racha = parseInt(localStorage.getItem('racha') || '0');
+
+      if (ultimaFecha) {
+        const ultima = new Date(ultimaFecha);
+        const ahora = new Date(hoy);
+        const diferencia = (ahora - ultima) / (1000 * 60 * 60 * 24);
+
+        if (diferencia === 1) {
+          racha += 1;
+        } else if (diferencia > 1) {
+          racha = 0;
+        }
+      }
+
+      localStorage.setItem('racha', racha);
+      document.getElementById('racha').textContent = `Racha actual: ${racha} día${racha === 1 ? '' : 's'} seguidos`;
+    }
+
+    function analizarDia() {
+      const texto = document.getElementById('inputDia').value.trim();
+      if (texto === "") {
+        alert("Por favor escribe algo sobre tu día.");
+        return;
+      }
+
+      const ultimaFecha = localStorage.getItem('ultimaEntrada');
+      const hoy = getFechaHoy();
+
+      if (ultimaFecha !== hoy) {
+        localStorage.setItem('ultimaEntrada', hoy);
+        let racha = parseInt(localStorage.getItem('racha') || '0');
+        if (!ultimaFecha) {
+          racha = 1;
+        } else {
+          const diff = (new Date(hoy) - new Date(ultimaFecha)) / (1000 * 60 * 60 * 24);
+          racha = diff === 1 ? racha + 1 : 1;
+        }
+        localStorage.setItem('racha', racha);
+      }
+
+      cargarRacha();
+
+      const felicidad = Math.floor(Math.random() * 101);
+      const depresion = Math.floor(Math.random() * (100 - felicidad));
+      const ganasMorir = Math.floor(Math.random() * (100 - felicidad - depresion));
+      const ganasVivir = 100 - (felicidad + depresion + ganasMorir);
+
+      document.getElementById("txtFelicidad").textContent = `Felicidad: ${felicidad}%`;
+      document.getElementById("txtDepresion").textContent = `Depresión: ${depresion}%`;
+      document.getElementById("txtMorir").textContent = `Ganas de morir: ${ganasMorir}%`;
+      document.getElementById("txtVivir").textContent = `Ganas de vivir: ${ganasVivir}%`;
+
+      const mensaje = mensajesOscuros[Math.floor(Math.random() * mensajesOscuros.length)];
+      document.getElementById("mensajeFinal").textContent = mensaje;
+
+      document.getElementById("resultados").style.display = "block";
+    }
+
+    cargarRacha();
+  </script>
+</body>
+</html>
